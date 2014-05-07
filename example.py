@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from case_object import CaseObject, case, default
+from case_object import ANY, CaseObject, case, default
 
 
 class Person(CaseObject):
@@ -13,7 +13,7 @@ def main():
 
     p1 = Person(name="Keith")
 
-    p1.match(
+    p1.best_match(
         case(keith, lambda x: print("Matched Keith")),
         case(bob, lambda x: print("Matched Bob")),
         default = lambda: print("No match")
@@ -21,8 +21,8 @@ def main():
 
     p2 = Person(name="Bob", age=50)
 
-    p2.match(
-        case(Person(name="Bob"), lambda x: print("Matched Bob1")),
+    p2.first_exact_match(
+        case(Person(name=ANY, age=50), lambda x: print("Matched Bob with ANY")),
         case(Person(name="Bob", age=50), lambda x: print("Matched Bob2")),
         default = lambda: print("No match")
     )

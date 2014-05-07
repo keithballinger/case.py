@@ -1,3 +1,22 @@
+
+class _ANY(object):
+    """
+    A helper object that compares equal to everything.
+    Shamelessly stolen from Mock.
+    """
+
+    def __eq__(self, other):
+        return True
+
+    def __ne__(self, other):
+        return False
+
+    def __repr__(self):
+        return '<ANY>'
+
+ANY = _ANY()
+
+
 class CaseObject(object):
     """
     Base class for objects that can be constructed
@@ -11,7 +30,7 @@ class CaseObject(object):
             setattr(self, name, value)
             self.list.append(name)
 
-    def match(self, *args, **kwargs):
+    def best_match(self, *args, **kwargs):
         winner = None
         winner_score = 0
         for case in args:
@@ -24,6 +43,29 @@ class CaseObject(object):
             default = kwargs['default']
             if default:
                 default()
+
+    def first_exact_match(self, *args, **kwargs):
+        for case in args:
+            if(self.__is_hard_match(case.obj)):
+                case.function(self)
+                return
+        default = kwargs['default']
+        if default:
+            default()
+
+    def __is_hard_match(self, obj):
+        """
+        True is the objects are an exact match, defined
+        as each attribute matching, or ANY for that attribute.
+        """
+        for attr in self.list:
+            try:
+                if getattr(obj, attr) != getattr(self, attr):
+                    return False
+            except AttributeError:
+                pass
+        return True
+
 
     def __match_num(self, obj):
         """
